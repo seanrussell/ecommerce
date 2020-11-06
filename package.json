@@ -1,7 +1,8 @@
 {
-	"name": "proshop",
+	"name": "ecommerce",
+	"proxy": "http://127.0.0.1:5000",
 	"version": "1.0.0",
-	"description": "shopping cart app",
+	"description": "Ecommerce shopping cart application",
 	"main": "server.js",
 	"scripts": {
 		"start": "node backend/server",
