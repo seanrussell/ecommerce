@@ -1,6 +1,6 @@
 # Getting Started with eCommerce
 
-MERN stack eCommerce website and application.
+Node.js eCommerce website and application.
 
 ## Available Scripts
 
