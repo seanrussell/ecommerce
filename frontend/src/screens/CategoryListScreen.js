@@ -6,49 +6,49 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import Paginate from '../components/Paginate';
 import {
-	listProducts,
-	deleteProduct,
-	createProduct
-} from '../actions/productActions.js';
-import { PRODUCT_CREATE_RESET } from '../constants/productConstants';
+	listCategories,
+	deleteCategory,
+	createCategory
+} from '../actions/categoryActions.js';
+import { CATEGORY_CREATE_RESET } from '../constants/categoryConstants';
 
-const ProductListScreen = ({ history, match }) => {
+const CategoryListScreen = ({ history, match }) => {
 	const pageNumber = match.params.pageNumber || 1;
 
 	const dispatch = useDispatch();
 
-	const productList = useSelector(state => state.productList);
-	const { loading, error, products, pages, page } = productList;
+	const categoryList = useSelector(state => state.categoryList);
+	const { loading, error, categories, pages, page } = categoryList;
 
-	const productDelete = useSelector(state => state.productDelete);
+	const categoryDelete = useSelector(state => state.categoryDelete);
 	const {
 		loading: loadingDelete,
 		error: errorDelete,
 		success: successDelete
-	} = productDelete;
+	} = categoryDelete;
 
-	const productCreate = useSelector(state => state.productCreate);
+	const categoryCreate = useSelector(state => state.categoryCreate);
 	const {
 		loading: loadingCreate,
 		error: errorCreate,
 		success: successCreate,
-		product: createdProduct
-	} = productCreate;
+		category: createdCategory
+	} = categoryCreate;
 
 	const userLogin = useSelector(state => state.userLogin);
 	const { userInfo } = userLogin;
 
 	useEffect(() => {
-		dispatch({ type: PRODUCT_CREATE_RESET });
+		dispatch({ type: CATEGORY_CREATE_RESET });
 
 		if (!userInfo.isAdmin) {
 			history.push('/login');
 		}
 
 		if (successCreate) {
-			history.push(`/admin/product/${createdProduct._id}/edit`);
+			history.push(`/admin/category/${createdCategory._id}/edit`);
 		} else {
-			dispatch(listProducts('', pageNumber));
+			dispatch(listCategories('', pageNumber));
 		}
 	}, [
 		dispatch,
@@ -56,29 +56,29 @@ const ProductListScreen = ({ history, match }) => {
 		userInfo,
 		successDelete,
 		successCreate,
-		createdProduct,
+		createdCategory,
 		pageNumber
 	]);
 
 	const deleteHandler = id => {
 		if (window.confirm('Are you sure?')) {
-			dispatch(deleteProduct(id));
+			dispatch(deleteCategory(id));
 		}
 	};
 
-	const createProductHandler = () => {
-		dispatch(createProduct());
+	const createCategoryHandler = () => {
+		dispatch(createCategory());
 	};
 
 	return (
 		<>
 			<Row className='align-items-center'>
 				<Col>
-					<h1>Products</h1>
+					<h1>Categories</h1>
 				</Col>
 				<Col className='text-right'>
-					<Button className='my-3' onClick={createProductHandler}>
-						<i className='fas fa-plus'></i> Create Product
+					<Button className='my-3' onClick={createCategoryHandler}>
+						<i className='fas fa-plus'></i> Create Category
 					</Button>
 				</Col>
 			</Row>
@@ -97,24 +97,18 @@ const ProductListScreen = ({ history, match }) => {
 							<tr>
 								<th>ID</th>
 								<th>NAME</th>
-								<th>PRICE</th>
-								<th>CATEGORY</th>
-								<th>BRAND</th>
-								<th>GROUP</th>
+								<th>PARENT</th>
 								<th></th>
 							</tr>
 						</thead>
 						<tbody>
-							{products.map(product => (
-								<tr key={product._id}>
-									<td>{product._id}</td>
-									<td>{product.name}</td>
-									<td>${product.price}</td>
-									<td>{product.category}</td>
-									<td>{product.brand}</td>
-									<td>{ (product.group) ? product.group.name: ''}</td>
+							{categories.map(category => (
+								<tr key={category._id}>
+									<td>{category._id}</td>
+									<td>{category.name}</td>
+									<td>{ (category.parentCategory) ? category.parentCategory.name: ''}</td>
 									<td>
-										<LinkContainer to={`/admin/product/${product._id}/edit`}>
+										<LinkContainer to={`/admin/category/${category._id}/edit`}>
 											<Button variant='light' className='btn-sm'>
 												<i className='fas fa-edit'></i>
 											</Button>
@@ -122,7 +116,7 @@ const ProductListScreen = ({ history, match }) => {
 										<Button
 											variant='danger'
 											className='btn-sm'
-											onClick={() => deleteHandler(product._id)}
+											onClick={() => deleteHandler(category._id)}
 										>
 											<i className='fas fa-trash'></i>
 										</Button>
@@ -138,4 +132,4 @@ const ProductListScreen = ({ history, match }) => {
 	);
 };
 
-export default ProductListScreen;
+export default CategoryListScreen;

@@ -6,6 +6,9 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import FormContainer from '../components/FormContainer';
 import {
+	listCategories
+} from '../actions/categoryActions.js';
+import {
 	listProductDetails,
 	updateProduct
 } from '../actions/productActions.js';
@@ -23,12 +26,16 @@ const ProductEditScreen = ({ match, history }) => {
 	const [category, setCategory] = useState('');
 	const [countInStock, setCountInStock] = useState(0);
 	const [uploading, setUploading] = useState(false);
+	const [group, setCategoryGroup] = useState('');
 
 	const dispatch = useDispatch();
 
 	const productDetails = useSelector(state => state.productDetails);
 	const { loading, error, product } = productDetails;
 
+	const categoryList = useSelector(state => state.categoryList);
+    const { categories } = categoryList;
+	
 	const productUpdate = useSelector(state => state.productUpdate);
 	const {
 		loading: loadingUpdate,
@@ -51,6 +58,8 @@ const ProductEditScreen = ({ match, history }) => {
 				setDescription(product.description);
 				setCategory(product.category);
 				setCountInStock(product.countInStock);
+
+				dispatch(listCategories(1));
 			}
 		}
 	}, [dispatch, history, productId, product, successUpdate]);
@@ -88,7 +97,8 @@ const ProductEditScreen = ({ match, history }) => {
 				image,
 				category,
 				description,
-				countInStock
+				countInStock,
+				group
 			})
 		);
 	};
@@ -178,7 +188,20 @@ const ProductEditScreen = ({ match, history }) => {
 								onChange={e => setDescription(e.target.value)}
 							></Form.Control>
 						</Form.Group>
-
+						<Form.Group controlId='price'>
+							<Form.Label>Category Group</Form.Label>
+                            <Form.Control
+                                as='select'
+                                value={group}
+                                onChange={e => setCategoryGroup(e.target.value)}
+                            >
+                                {categories.map(category => (
+                                    <option key={category._id} value={category._id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
+						</Form.Group>
 						<Button type='submit' variant='primary'>
 							Update
 						</Button>

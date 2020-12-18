@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
+import Category from '../models/categoryModel.js';
 
 // @desc Fetch all products
 // @route GET /api/products
@@ -19,10 +20,44 @@ const getProducts = asyncHandler(async (req, res) => {
 
 	const countDocuments = await Product.count({ ...keyword });
 	const products = await Product.find({ ...keyword })
+		.populate('group')
 		.limit(pageSize)
 		.skip(pageSize * (page - 1));
 
 	res.json({ products, page, pages: Math.ceil(countDocuments / pageSize) });
+});
+
+// @desc Fetch all products in a category or in a category below
+// @route GET /api/products/category
+// @access Public
+const getProductsByCategoryId = asyncHandler(async (req, res) => {
+	const categoryId = req.params.id;
+
+	// Not very efficient and limited to 2 nested levels
+	let categoryIds = [categoryId];
+	let nextCategories = await Category.find({ parentCategory: { $in: categoryIds }});
+
+	if (nextCategories && nextCategories.length > 0) {
+		let nextCategoryIds = nextCategories.map((category) => {
+			return category._id;
+		});
+
+		categoryIds = [...categoryIds, ...nextCategoryIds];
+
+		nextCategories = await Category.find({ parentCategory: { $in: categoryIds }});
+		
+		if (nextCategories && nextCategories.length > 0) {
+			nextCategoryIds = nextCategories.map((category) => {
+				return category._id;
+			});
+	
+			categoryIds = [...categoryIds, ...nextCategoryIds];
+		}
+	}
+
+	const products = await Product.find({ group: { $in: categoryIds }});
+
+	res.json({ products });
 });
 
 // @desc Fetch single product
@@ -90,7 +125,8 @@ const updateProduct = asyncHandler(async (req, res) => {
 		image,
 		brand,
 		category,
-		countInStock
+		countInStock,
+		group
 	} = req.body;
 
 	const product = await Product.findById(req.params.id);
@@ -103,6 +139,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 		product.brand = brand;
 		product.category = category;
 		product.countInStock = countInStock;
+		product.group = group;
 
 		const updatedProduct = await product.save();
 
@@ -168,6 +205,7 @@ const getTopProducts = asyncHandler(async (req, res) => {
 export {
 	getProducts,
 	getProductById,
+	getProductsByCategoryId,
 	deleteProduct,
 	createProduct,
 	updateProduct,

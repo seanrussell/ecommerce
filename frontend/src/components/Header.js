@@ -1,16 +1,71 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import { logout } from '../actions/userActions.js';
+import { listCategories } from '../actions/categoryActions.js';
 import SearchBox from './SearchBox';
+import DropdownMenu from './DropdownMenu';
 
 const Header = () => {
 	const dispatch = useDispatch();
 	const userLogin = useSelector(state => state.userLogin);
 	const { userInfo } = userLogin;
 
+	const categoryList = useSelector(state => state.categoryList);
+    const { categories } = categoryList;
+
+	const convertToMenu = (list, idAttr, parentAttr, childrenAttr) => {
+		if (!idAttr) {
+			idAttr = 'id';
+		}
+
+		if (!parentAttr) {
+			parentAttr = 'parent';
+		}
+
+		if (!childrenAttr) {
+			childrenAttr = 'children';
+		}
+	
+		let treeList = [];
+		let lookup = {};
+
+		list.forEach((obj) => {
+			lookup[obj[idAttr]] = obj;
+			obj[childrenAttr] = [];
+		});
+
+		list.forEach((obj) => {
+			if (obj[parentAttr] != null) {
+				if (lookup[obj[parentAttr]] !== undefined) {
+					lookup[obj[parentAttr]][childrenAttr].push(obj);
+				} else {
+					treeList.push(obj);
+				}               
+			} else {
+				treeList.push(obj);
+			}
+		});
+
+		return treeList;
+	};
+
+	const menu = convertToMenu(categories.map((category) => {
+		let parentid = (category.parentCategory) ? category.parentCategory._id: 0;
+		return {
+			id: category._id,
+			title: category.name,
+			parentId: parentid
+		}
+	}), 'id', 'parentId', 'submenu');
+	
+	useEffect(() => {
+		dispatch(listCategories(1));
+	}, [dispatch]);
+
+	
 	const logoutHandler = () => {
 		dispatch(logout());
 	};
@@ -57,12 +112,18 @@ const Header = () => {
 									<LinkContainer to='/admin/orderlist'>
 										<NavDropdown.Item>Orders</NavDropdown.Item>
 									</LinkContainer>
+									<LinkContainer to='/admin/categorylist'>
+										<NavDropdown.Item>Categories</NavDropdown.Item>
+									</LinkContainer>
 								</NavDropdown>
 							)}
 						</Nav>
 					</Navbar.Collapse>
 				</Container>
 			</Navbar>
+				
+			<DropdownMenu config={menu} />
+			
 		</header>
 	);
 };

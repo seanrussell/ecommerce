@@ -18,6 +18,11 @@ const reviewSchema = mongoose.Schema(
 
 const productSchema = mongoose.Schema(
 	{
+		group: {
+			type: mongoose.Schema.Types.ObjectId,
+			required: false,
+			ref: 'Category'
+		},
 		user: {
 			type: mongoose.Schema.Types.ObjectId,
 			required: true,
