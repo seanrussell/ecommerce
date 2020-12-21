@@ -26,7 +26,7 @@ class DropdownMenu extends Component {
         if (this.props.submenu && this.props.submenu === true)
           return <ul className="sub-menu">{options}</ul>;
     
-        return <div className="category-menu-wrapper"><nav id="menu"><label for="tm" id="toggle-menu">Categories <span class="drop-icon"><i class="fas fa-caret-down"></i></span></label><input type="checkbox" id="tm"/><ul className="category-menu main-menu">{options}</ul></nav></div>;
+        return <div className="category-menu-wrapper"><div className="container"><nav id="menu"><label for="tm" id="toggle-menu">Categories <span class="drop-icon"><i class="fas fa-caret-down"></i></span></label><input type="checkbox" id="tm"/><ul className="category-menu main-menu">{options}</ul></nav></div></div>;
       };
 }
 
